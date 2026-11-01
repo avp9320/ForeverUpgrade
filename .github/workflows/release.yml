@@ -1,0 +1,81 @@
+name: Package Forever Upgrade
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '*.lua'
+      - '*.toc'
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - '.github/workflows/release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read addon version
+        id: version
+        shell: bash
+        run: |
+          VERSION=$(awk '/^## Version:/ {print $3; exit}' ForeverUpgrade.toc)
+          if [ -z "$VERSION" ]; then
+            echo "Could not read version from ForeverUpgrade.toc"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Verify manifests match
+        shell: bash
+        run: |
+          VERSION='${{ steps.version.outputs.version }}'
+          grep -q "^## Version: $VERSION$" ForeverUpgrade_Camelot.toc
+
+      - name: Check whether this version already exists
+        id: exists
+        shell: bash
+        run: |
+          TAG='${{ steps.version.outputs.tag }}'
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build installable ZIP
+        if: steps.exists.outputs.exists == 'false'
+        shell: bash
+        run: |
+          VERSION='${{ steps.version.outputs.version }}'
+          mkdir -p package/ForeverUpgrade
+          cp ForeverUpgrade.toc ForeverUpgrade_Camelot.toc Profiles.lua Scoring.lua UI.lua Core.lua README.md CHANGELOG.md package/ForeverUpgrade/
+          cd package
+          zip -r "../ForeverUpgrade-v${VERSION}.zip" ForeverUpgrade
+
+      - name: Create GitHub release
+        if: steps.exists.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          VERSION='${{ steps.version.outputs.version }}'
+          TAG='${{ steps.version.outputs.tag }}'
+          git tag "$TAG" "$GITHUB_SHA"
+          git push origin "$TAG"
+          gh release create "$TAG" "ForeverUpgrade-v${VERSION}.zip" \
+            --title "Forever Upgrade v${VERSION}" \
+            --notes "Automated installable release for WoW: Forever. See CHANGELOG.md for details."
+
+      - name: Already released
+        if: steps.exists.outputs.exists == 'true'
+        run: echo "Version ${{ steps.version.outputs.version }} already has a release tag; nothing to do."
