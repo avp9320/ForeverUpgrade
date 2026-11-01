@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.2 - 2026-11-01
+- Added compact group-loot upgrade verdicts directly to Blizzard's existing loot-roll popup.
+- Verdicts are BIG UPGRADE, UPGRADE, SIDEGRADE, DOWNGRADE, or NOT FOR YOU.
+- Uses the same ForeverUpgrade scoring/profile logic as bags, tooltips, quest rewards, and ForeverDungeon.
+- Does not auto-roll Need/Greed/Pass; the addon only gives the recommendation and leaves the click to the player.
+- Added item-cache retries so a loot popup can be scored after item data finishes loading.
+
 ## 0.2.0 - 2026-11-01
 - Replaced the old hand-tuned **level-60 Arms and Fury secondary-stat baselines** with MythicSim WoW: Forever EP values where the simulator directly measures the stat.
 - Arms endgame now uses MythicSim's 39/10/2 reference EP values for Crit, Haste, Strength, Expertise, Agility, Attack Power, and Armor Penetration.
