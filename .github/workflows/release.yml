@@ -58,7 +58,7 @@ jobs:
         run: |
           VERSION='${{ steps.version.outputs.version }}'
           mkdir -p package/ForeverUpgrade
-          cp ForeverUpgrade.toc ForeverUpgrade_Camelot.toc Profiles.lua Scoring.lua UI.lua Core.lua README.md CHANGELOG.md package/ForeverUpgrade/
+          cp ForeverUpgrade.toc ForeverUpgrade_Camelot.toc *.lua README.md CHANGELOG.md package/ForeverUpgrade/
           cd package
           zip -r "../ForeverUpgrade-v${VERSION}.zip" ForeverUpgrade
 
