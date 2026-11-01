@@ -1,11 +1,20 @@
 # Changelog
 
+## 0.2.0 - 2026-11-01
+- Replaced the old hand-tuned **level-60 Arms and Fury secondary-stat baselines** with MythicSim WoW: Forever EP values where the simulator directly measures the stat.
+- Arms endgame now uses MythicSim's 39/10/2 reference EP values for Crit, Haste, Strength, Expertise, Agility, Attack Power, and Armor Penetration.
+- Fury endgame now uses MythicSim's 18/31/2 reference EP values for Crit, Strength, Agility, Haste, Hit, Expertise, Attack Power, and Armor Penetration.
+- Protection offensive/threat stats now use MythicSim's Protection threat EP values while existing survival weights remain conservative heuristics; a future release will split Threat and Survival into separate scores.
+- Added Armor Penetration support to the internal stat model/Pawn imports.
+- Added source metadata and `/fu source`; `/fu status` and `/fu weights` now report the active weight source.
+- Leveling profiles remain clearly labeled estimates based on Forever mechanics and leveling priorities rather than raid sims.
+- Arms/Protection Hit and weapon-DPS values remain explicit fallbacks where the published reference sim cannot provide a directly usable generic value.
+
 ## 0.1.1
 - Retry bag, quest, and tooltip hooks when Blizzard creates UI frames after login.
 - Added quest/talent events to refresh comparisons more reliably.
 
 ## 0.1.0 - 2026-11-01
-
 - Initial Warrior-first release.
 - Arms, Fury, Protection leveling/endgame profiles.
 - Tooltip estimated upgrade percentages.
