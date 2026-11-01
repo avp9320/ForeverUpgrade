@@ -32,6 +32,11 @@ end
 
 local function boolText(v) return v and "on" or "off" end
 
+local function getSource()
+    local _, spec, mode = FU:GetWeights()
+    return FU.WEIGHT_SOURCES and FU.WEIGHT_SOURCES[spec] and FU.WEIGHT_SOURCES[spec][mode] or "Unknown"
+end
+
 local function currentSummary()
     local _, spec, mode = FU:GetWeights()
     return string.format("spec=%s (%s), mode=%s, threshold=%.1f%%, tooltips=%s, arrows=%s, quest=%s",
@@ -44,6 +49,7 @@ end
 
 local function showHelp()
     msg("/fu status")
+    msg("/fu source            (show active weight source)")
     msg("/fu spec auto|arms|fury|prot")
     msg("/fu mode auto|leveling|endgame")
     msg("/fu threshold <percent>   (default 1)")
@@ -81,6 +87,7 @@ end
 local function printWeights()
     local weights, spec, mode = FU:GetWeights()
     msg(FU.PROFILES[spec].label .. " / " .. mode .. " weights (rating stats are per 1 rating):")
+    msg("source: " .. getSource())
     local line = {}
     for _, stat in ipairs(FU.STAT_ORDER) do
         if weights[stat] and weights[stat] ~= 0 then
@@ -138,6 +145,9 @@ local function slash(input)
         showHelp()
     elseif command == "status" then
         msg(currentSummary())
+        msg("source: " .. getSource())
+    elseif command == "source" then
+        msg(getSource())
     elseif command == "spec" then
         local value = string.lower(rest or "")
         if value == "protection" then value = "prot" end
@@ -235,8 +245,6 @@ frame:SetScript("OnEvent", function(_, event, arg1)
             msg("v" .. FU.VERSION .. " loaded. " .. currentSummary())
         end)
     elseif event == "BAG_UPDATE_DELAYED" or event == "PLAYER_EQUIPMENT_CHANGED" or event == "PLAYER_LEVEL_UP" or event == "TRAIT_CONFIG_UPDATED" or event == "PLAYER_TALENT_UPDATE" or event == "QUEST_DETAIL" or event == "QUEST_COMPLETE" or event == "QUEST_FINISHED" then
-        -- Blizzard can create bag/quest frames lazily. Retrying the hooks is cheap
-        -- and makes the addon resilient to those frames appearing after login.
         FU:HookBags()
         FU:HookQuestRewards()
         FU:HookTooltips()
