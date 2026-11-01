@@ -1,0 +1,11 @@
+## Interface: 16001
+## Title: Forever Upgrade
+## Notes: Warrior-first gear upgrade scoring for World of Warcraft: Forever.
+## Author: Andy + ChatGPT
+## Version: 0.1.1
+## SavedVariables: ForeverUpgradeDB
+
+Profiles.lua
+Scoring.lua
+UI.lua
+Core.lua
