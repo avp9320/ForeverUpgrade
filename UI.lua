@@ -4,22 +4,42 @@ FU = _G.ForeverUpgrade or FU
 local function ensureOverlay(button)
     if not button or not button.CreateTexture then return nil end
     if not button.ForeverUpgradeArrow then
+        -- Quest rewards are wide buttons: anchoring to the center of the
+        -- *button* puts text directly over the item's name. Keep both
+        -- indicators inside the 36-ish pixel icon area instead.
+        local icon = button.Icon or button.icon or button.IconTexture
+        if not (icon and icon.GetObjectType) then icon = nil end
+
         local tex = button:CreateTexture(nil, "OVERLAY", nil, 7)
-        tex:SetAtlas("bags-greenarrow", true)
-        tex:SetPoint("TOPLEFT", button, "TOPLEFT", 1, -1)
+        tex:SetAtlas("bags-greenarrow", false)
+        tex:SetSize(16, 16)
+        if icon then
+            tex:SetPoint("TOPLEFT", icon, "TOPLEFT", 1, -1)
+        else
+            tex:SetPoint("TOPLEFT", button, "TOPLEFT", 1, -1)
+        end
         tex:Hide()
         button.ForeverUpgradeArrow = tex
 
         local text = button:CreateFontString(nil, "OVERLAY", "NumberFontNormalSmall")
-        text:SetPoint("TOP", button, "TOP", 0, -2)
-        text:SetTextColor(0.2, 1, 0.2)
+        text:SetWidth(36)
+        text:SetHeight(12)
+        text:SetJustifyH("CENTER")
+        if icon then
+            text:SetPoint("BOTTOMLEFT", icon, "BOTTOMLEFT", 0, 1)
+        else
+            -- Default quest-reward item icons sit at the button's left edge.
+            -- This intentionally avoids anchoring anywhere in the label area.
+            text:SetPoint("TOPLEFT", button, "TOPLEFT", 1, -23)
+        end
+        text:SetTextColor(0.35, 1, 0.35)
+        text:SetShadowColor(0, 0, 0, 1)
         text:SetShadowOffset(1, -1)
         text:Hide()
         button.ForeverUpgradePercent = text
     end
     return button.ForeverUpgradeArrow, button.ForeverUpgradePercent
 end
-
 function FU:ClearButton(button)
     if button and button.ForeverUpgradeArrow then button.ForeverUpgradeArrow:Hide() end
     if button and button.ForeverUpgradePercent then button.ForeverUpgradePercent:Hide() end
@@ -60,7 +80,8 @@ local function updateContainerButton(button, bag, slot)
 end
 
 function FU:UpdateBagArrows()
-    if not (ForeverUpgradeDB and ForeverUpgradeDB.arrows) then return end
+    -- Visit buttons even when arrows are disabled so stale markers get hidden.
+    if not ForeverUpgradeDB then return end
 
     local function updateFrame(frame)
         if not (frame and frame.EnumerateValidItems) then return end
@@ -120,7 +141,7 @@ local function questRewardLink(button)
 end
 
 function FU:UpdateQuestArrows()
-    if not (ForeverUpgradeDB and ForeverUpgradeDB.questArrows) then return end
+    if not ForeverUpgradeDB then return end
     if not (QuestInfoFrame and QuestInfoFrame.rewardsFrame) then return end
     local rewards = QuestInfoFrame.rewardsFrame
     if not rewards.RewardButtons then return end
@@ -138,6 +159,8 @@ function FU:UpdateQuestArrows()
             end
         end
     end
+
+    if not ForeverUpgradeDB.questArrows then return end
 
     -- Deliberately mark only the best choosable reward. Mandatory rewards still
     -- receive normal tooltip scoring, but don't need a "pick me" arrow.
