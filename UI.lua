@@ -204,6 +204,14 @@ function FU:HookTooltips()
         tooltip:AddDoubleLine("Forever Upgrade", text, 0.95, 0.82, 0.25, 1, 1, 1)
         tooltip:AddDoubleLine("Profile", string.format("%s / %s", specLabel, mode == "leveling" and "Leveling" or "Endgame"), 0.55, 0.55, 0.55, 0.75, 0.75, 0.75)
 
+        if FU:GetDetectedSpec() == "prot" then
+            local split = FU:ProtectionComparison(link)
+            if split then
+                tooltip:AddDoubleLine("Threat estimate", string.format("%+.1f score", split.threat), 0.7, 0.7, 0.7, 1, 1, 1)
+                tooltip:AddDoubleLine("Survival estimate", string.format("%+.1f score", split.survival), 0.7, 0.7, 0.7, 1, 1, 1)
+            end
+        end
+
         if ForeverUpgradeDB.details then
             tooltip:AddDoubleLine("Weighted score", string.format("%.1f → %.1f", result.equipped or 0, result.candidate or 0), 0.55, 0.55, 0.55, 0.75, 0.75, 0.75)
         end
