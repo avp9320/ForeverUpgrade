@@ -2,10 +2,6 @@ local ADDON_NAME, FU = ...
 FU = _G.ForeverUpgrade or FU
 if not FU then return end
 
--- Keep the runtime version in sync with the packaged release. Profiles.lua owns
--- the original version declaration, but this feature ships in v0.2.2.
-FU.VERSION = "0.2.3"
-
 local BIG_UPGRADE_PERCENT = 10
 local MAX_GROUP_LOOT_FRAMES = 4
 local hookedFrames = setmetatable({}, { __mode = "k" })
