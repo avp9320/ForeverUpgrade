@@ -1,4 +1,4 @@
-# Forever Upgrade v0.2.0
+# Forever Upgrade v0.2.4
 
 Warrior-first item upgrade scoring for **World of Warcraft: Forever**.
 
@@ -7,8 +7,9 @@ Warrior-first item upgrade scoring for **World of Warcraft: Forever**.
 - Automatically detects the Warrior tree with the most points (Arms / Fury / Protection), or lets you force a profile.
 - Uses separate **Leveling** and **Endgame** weight sets. Auto mode switches to Endgame at level 60.
 - Adds an **estimated upgrade/downgrade percentage** to item tooltips.
-- Adds green arrows and optional percentages to upgrades in Blizzard's bags.
+- Adds green arrows and optional percentages to upgrades in Blizzard's bags and in **the ordinary corpse/chest loot window**, before you pick an item up.
 - Marks the **best gear upgrade among quest reward choices**.
+- Also labels **Need/Greed group-loot rolls**; these use a separate UI from ordinary corpse/chest loot.
 - Correctly treats rings/trinkets as two-slot items, Fury one-handers as possible main/off-hand upgrades once Dual Wield is available, and two-handers as replacing both hands.
 - Supports editable weights and Pawn-style import/export.
 - Reports the source of the active weights with `/fu source`.
@@ -72,6 +73,10 @@ Forever currently reports Interface `16001`; both standard and `_Camelot.toc` ma
 - `/fu reset`
 - `/fu export`
 - `/fu import <Pawn-style scale>`
+
+## Loot-window upgrade arrows
+
+The ordinary Forever loot panel uses Blizzard's `LootFrame.ScrollBox`. v0.2.4 adds a small green arrow on the item icon and, when enabled, a percentage at the bottom-right of an upgrade's row. Loot-window arrows use the same estimated score and `/fu arrows on|off` setting as bag arrows. This **does not** auto-loot or alter click actions. The separate group-loot (Need/Greed) indicator is unchanged.
 
 ## Important limitations
 
