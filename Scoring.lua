@@ -270,13 +270,21 @@ function FU:CompareItem(link)
     end
 
     local best
+    -- A one-handed weapon cannot be placed in the off hand while a two-hander
+    -- occupies the main hand. Do not suggest a phantom off-hand upgrade that
+    -- would require removing the equipped two-hander first.
+    local mainLink = equippedLink(SLOT.MAINHAND)
+    local mainInfo = mainLink and itemInfo(mainLink)
+    local mainIsTwoHanded = mainInfo and mainInfo.equipLoc == "INVTYPE_2HWEAPON"
     for _, slot in ipairs(slots) do
-        local delta, candidateScore, wornScore, comparedSlot, worn = compareSingle(self, link, slot)
-        if delta and (not best or delta > best.delta) then
+        if not (slot == SLOT.OFFHAND and mainIsTwoHanded) then
+            local delta, candidateScore, wornScore, comparedSlot, worn = compareSingle(self, link, slot)
+            if delta and (not best or delta > best.delta) then
             best = {
                 delta = delta, candidate = candidateScore, equipped = wornScore,
                 slot = comparedSlot, replaced = { worn }, info = info,
-            }
+                }
+            end
         end
     end
 
