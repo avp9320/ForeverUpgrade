@@ -10,6 +10,7 @@ local DEFAULTS = {
     questArrows = true,
     showPercent = true,
     details = false,
+    protPriority = "hybrid",
     customWeights = {},
 }
 
@@ -52,6 +53,7 @@ local function showHelp()
     msg("/fu source            (show active weight source)")
     msg("/fu spec auto|arms|fury|prot")
     msg("/fu mode auto|leveling|endgame")
+    msg("/fu protpriority hybrid|threat|survival")
     msg("/fu threshold <percent>   (default 1)")
     msg("/fu tooltips on|off   /fu arrows on|off   /fu quest on|off")
     msg("/fu percent on|off    /fu details on|off")
@@ -146,6 +148,7 @@ local function slash(input)
     elseif command == "status" then
         msg(currentSummary())
         msg("source: " .. getSource())
+        msg("Protection arrow priority: " .. tostring(ForeverUpgradeDB.protPriority))
     elseif command == "source" then
         msg(getSource())
     elseif command == "spec" then
@@ -166,6 +169,15 @@ local function slash(input)
             FU:UpdateBagArrows(); FU:UpdateQuestArrows(); FU:UpdateLootWindow()
         else
             msg("mode must be auto, leveling, or endgame")
+        end
+    elseif command == "protpriority" then
+        local value = string.lower(rest or "")
+        if value == "hybrid" or value == "threat" or value == "survival" then
+            ForeverUpgradeDB.protPriority = value
+            msg("Protection arrow priority: " .. value)
+            FU:UpdateBagArrows(); FU:UpdateQuestArrows(); FU:UpdateLootWindow()
+        else
+            msg("Protection arrow priority: " .. tostring(ForeverUpgradeDB.protPriority) .. " (hybrid|threat|survival)")
         end
     elseif command == "threshold" then
         local value = tonumber(rest)
