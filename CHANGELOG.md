@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.4 - 2026-11-04
+- Add upgrade arrows and optional estimated percentages to the **regular corpse/chest loot window**, not just bags and Need/Greed roll popups.
+- Hook Forever's modern `LootFrame.ScrollBox` initialized/recycled rows and query each item with `GetLootSlotLink`.
+- Clear markers as loot slots change/close; retry uncached items when item data loads.
+- Reuse the existing bag-arrow toggle, threshold, and scoring; no auto-loot or altered click behavior.
+- Centralize the addon runtime version in `Profiles.lua` instead of overwriting it in the loot-roll module.
+
+
 ## 0.2.2 - 2026-11-01
 - Added compact group-loot upgrade verdicts directly to Blizzard's existing loot-roll popup.
 - Verdicts are BIG UPGRADE, UPGRADE, SIDEGRADE, DOWNGRADE, or NOT FOR YOU.
