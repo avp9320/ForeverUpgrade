@@ -340,8 +340,27 @@ function FU:UpgradePercent(result)
     return (result.delta / result.equipped) * 100, false
 end
 
+-- Selection policy for Protection arrows. Hybrid remains the default for
+-- existing installations; threat/survival use their own baseline and threshold.
+function FU:RecommendationComparison(link, result)
+    result = result or self:CompareItem(link)
+    if not result then return nil end
+    local policy = ForeverUpgradeDB and ForeverUpgradeDB.protPriority or "hybrid"
+    if self:GetDetectedSpec() ~= "prot" or (policy ~= "threat" and policy ~= "survival") then
+        return result
+    end
+    local split = self:ProtectionComparison(link)
+    if not split then return result end
+    local chosen = policy == "threat" and split.threat or split.survival
+    local candidate = policy == "threat" and split.threatCandidate or split.survivalCandidate
+    local equipped = policy == "threat" and split.threatEquipped or split.survivalEquipped
+    return { delta = chosen, candidate = candidate, equipped = equipped,
+        slot = result.slot, replaced = result.replaced, info = result.info,
+        priority = policy }
+end
+
 function FU:IsUpgrade(link)
-    local result = self:CompareItem(link)
+    local result = self:RecommendationComparison(link)
     if not result then return false, nil end
     local threshold = ForeverUpgradeDB and tonumber(ForeverUpgradeDB.threshold) or 0
     local pct, isNew = self:UpgradePercent(result)
