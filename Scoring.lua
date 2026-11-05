@@ -284,6 +284,52 @@ function FU:CompareItem(link)
     return best
 end
 
+-- Protection has two distinct priorities. These estimates deliberately use the
+-- existing sourced/heuristic profile weights rather than inventing new sim EP.
+-- Keep the legacy hybrid delta for arrows and other API consumers.
+local PROT_SURVIVAL = { STA = true, ARMOR = true, DEF = true, DODGE = true,
+    PARRY = true, BLOCK = true, BLOCKVALUE = true, AGI = true }
+local PROT_THREAT = { STR = true, AP = true, HIT = true, CRIT = true,
+    HASTE = true, EXPERTISE = true, ARP = true, DPS = true }
+
+function FU:ProtectionComparison(link)
+    if self:GetDetectedSpec() ~= "prot" then return nil end
+    local result = self:CompareItem(link)
+    if not result then return nil end
+    local weights = self:GetWeights()
+    local function component(itemLink, slot, group)
+        if not itemLink then return 0 end
+        local _, stats, info = self:ScoreItem(itemLink, slot)
+        if not stats then return 0 end
+        local score = 0
+        for stat, value in pairs(stats) do
+            if group[stat] then
+                local key = stat
+                if stat == "DPS" and info then
+                    local role = weaponRole(info.equipLoc, slot)
+                    key = role == "offhand" and "DPS_OFF" or (role == "ranged" and "DPS_RANGED" or "DPS")
+                end
+                score = score + value * (weights[key] or 0)
+            end
+        end
+        return score
+    end
+    local threat = component(link, result.slot, PROT_THREAT)
+    local survival = component(link, result.slot, PROT_SURVIVAL)
+    local wornThreat, wornSurvival = 0, 0
+    for index, worn in ipairs(result.replaced or {}) do
+        local slot = result.slot
+        if result.info.equipLoc == "INVTYPE_2HWEAPON" then
+            slot = index == 1 and SLOT.MAINHAND or SLOT.OFFHAND
+        end
+        wornThreat = wornThreat + component(worn, slot, PROT_THREAT)
+        wornSurvival = wornSurvival + component(worn, slot, PROT_SURVIVAL)
+    end
+    return { threat = threat - wornThreat, survival = survival - wornSurvival,
+        threatCandidate = threat, survivalCandidate = survival,
+        threatEquipped = wornThreat, survivalEquipped = wornSurvival }
+end
+
 function FU:UpgradePercent(result)
     if not result then return nil end
     if result.equipped <= 0 then
