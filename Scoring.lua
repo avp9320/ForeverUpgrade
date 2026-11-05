@@ -317,7 +317,8 @@ function FU:ProtectionComparison(link)
     local threat = component(link, result.slot, PROT_THREAT)
     local survival = component(link, result.slot, PROT_SURVIVAL)
     local wornThreat, wornSurvival = 0, 0
-    for index, worn in ipairs(result.replaced or {}) do
+    for index = 1, (result.info.equipLoc == "INVTYPE_2HWEAPON" and 2 or 1) do
+        local worn = result.replaced and result.replaced[index]
         local slot = result.slot
         if result.info.equipLoc == "INVTYPE_2HWEAPON" then
             slot = index == 1 and SLOT.MAINHAND or SLOT.OFFHAND
