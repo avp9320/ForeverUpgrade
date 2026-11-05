@@ -1,10 +1,10 @@
-# Forever Upgrade v0.2.4
+# Forever Upgrade v0.2.5
 
 Warrior-first item upgrade scoring for **World of Warcraft: Forever**.
 
 ## What it does
 
-- Automatically detects the Warrior tree with the most points (Arms / Fury / Protection), or lets you force a profile.
+- Automatically detects the Warrior tree with the most points (Arms / Fury / Protection), or lets you force a profile. Reads Classic-style invested talent points first instead of mistaking Retail specialization metadata for points; falls back conservatively when the live client hides that data.
 - Uses separate **Leveling** and **Endgame** weight sets. Auto mode switches to Endgame at level 60.
 - Adds an **estimated upgrade/downgrade percentage** to item tooltips.
 - Adds green arrows and optional percentages to upgrades in Blizzard's bags and in **the ordinary corpse/chest loot window**, before you pick an item up.
