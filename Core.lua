@@ -71,7 +71,7 @@ local function setToggle(field, arg)
     ForeverUpgradeDB[field] = arg == "on"
     msg(field .. " " .. boolText(ForeverUpgradeDB[field]))
     FU:UpdateBagArrows()
-    FU:UpdateQuestArrows()
+    FU:UpdateQuestArrows(); FU:UpdateLootWindow()
 end
 
 local function weightContainer(create)
@@ -154,7 +154,7 @@ local function slash(input)
         if value == "auto" or FU.PROFILES[value] then
             ForeverUpgradeDB.spec = value
             msg("spec set to " .. value .. " (active: " .. FU.PROFILES[FU:GetDetectedSpec()].label .. ")")
-            FU:UpdateBagArrows(); FU:UpdateQuestArrows()
+            FU:UpdateBagArrows(); FU:UpdateQuestArrows(); FU:UpdateLootWindow()
         else
             msg("spec must be auto, arms, fury, or prot")
         end
@@ -163,7 +163,7 @@ local function slash(input)
         if value == "auto" or value == "leveling" or value == "endgame" then
             ForeverUpgradeDB.mode = value
             msg("mode set to " .. value .. " (active: " .. FU:GetMode() .. ")")
-            FU:UpdateBagArrows(); FU:UpdateQuestArrows()
+            FU:UpdateBagArrows(); FU:UpdateQuestArrows(); FU:UpdateLootWindow()
         else
             msg("mode must be auto, leveling, or endgame")
         end
@@ -172,7 +172,7 @@ local function slash(input)
         if value then
             ForeverUpgradeDB.threshold = math.max(0, value)
             msg(string.format("upgrade arrow threshold set to %.1f%%", ForeverUpgradeDB.threshold))
-            FU:UpdateBagArrows(); FU:UpdateQuestArrows()
+            FU:UpdateBagArrows(); FU:UpdateQuestArrows(); FU:UpdateLootWindow()
         else
             msg(string.format("threshold is %.1f%%", ForeverUpgradeDB.threshold))
         end
@@ -196,7 +196,7 @@ local function slash(input)
             local custom, spec, mode = weightContainer(true)
             custom[stat] = value
             msg(string.format("%s / %s: %s = %.4f", FU.PROFILES[spec].label, mode, stat, value))
-            FU:UpdateBagArrows(); FU:UpdateQuestArrows()
+            FU:UpdateBagArrows(); FU:UpdateQuestArrows(); FU:UpdateLootWindow()
         else
             msg("usage: /fu set <STAT> <value>  (try /fu weights)")
         end
@@ -206,12 +206,12 @@ local function slash(input)
             ForeverUpgradeDB.customWeights[spec][mode] = nil
         end
         msg("reset custom weights for " .. FU.PROFILES[spec].label .. " / " .. mode)
-        FU:UpdateBagArrows(); FU:UpdateQuestArrows()
+        FU:UpdateBagArrows(); FU:UpdateQuestArrows(); FU:UpdateLootWindow()
     elseif command == "export" then
         exportPawn()
     elseif command == "import" then
         importPawn(rest)
-        FU:UpdateBagArrows(); FU:UpdateQuestArrows()
+        FU:UpdateBagArrows(); FU:UpdateQuestArrows(); FU:UpdateLootWindow()
     else
         showHelp()
     end
@@ -250,7 +250,7 @@ frame:SetScript("OnEvent", function(_, event, arg1)
         FU:HookTooltips()
         C_Timer.After(0, function()
             FU:UpdateBagArrows()
-            FU:UpdateQuestArrows()
+            FU:UpdateQuestArrows(); FU:UpdateLootWindow()
         end)
     end
 end)
