@@ -1,4 +1,4 @@
-# Forever Upgrade v0.2.5
+# Forever Upgrade v0.2.6
 
 Warrior-first item upgrade scoring for **World of Warcraft: Forever**.
 
