@@ -62,6 +62,7 @@ Forever currently reports Interface `16001`; both standard and `_Camelot.toc` ma
 - `/fu source`
 - `/fu spec auto|arms|fury|prot`
 - `/fu mode auto|leveling|endgame`
+- `/fu protpriority hybrid|threat|survival` (Protection arrows; hybrid is the backwards-compatible default)
 - `/fu threshold 1`
 - `/fu tooltips on|off`
 - `/fu arrows on|off`
@@ -83,7 +84,7 @@ The ordinary Forever loot panel uses Blizzard's `LootFrame.ScrollBox`. v0.2.4 ad
 - **Weapon speed is not scored yet.** A slow weapon can have extra Arms value at equal DPS.
 - **Proc/on-use effects and set bonuses are not fully simulated in-game.** They may be partially invisible to `C_Item.GetItemStats`.
 - **Stat caps are not fully dynamic yet.** Hit/Expertise are still represented by profile weights rather than character-specific marginal EP at every breakpoint.
-- Protection tooltips now show **separate estimated Threat and Survival deltas** alongside the legacy hybrid upgrade recommendation. The split uses existing threat EP and survival heuristic weights, not a validated survival simulator; arrows still use the hybrid score.
+- Protection tooltips now show **separate estimated Threat and Survival deltas** alongside the legacy hybrid upgrade recommendation. The split uses existing threat EP and survival heuristic weights, not a validated survival simulator; arrows default to the hybrid score, but `/fu protpriority threat` or `survival` selects a component-specific recommendation and threshold.
 - Bag arrows are written for Blizzard's modern Forever bag UI. Third-party bag addons are not supported yet.
 - The quest-arrow code marks only the best *choosable* gear reward. Mandatory rewards still get tooltip comparisons.
 - Forever launches on 2026-11-04 and the client/API can still change.
@@ -93,6 +94,6 @@ The ordinary Forever loot panel uses Blizzard's `LootFrame.ScrollBox`. v0.2.4 ad
 - Dynamic Hit/Expertise cap handling.
 - Weapon-speed modeling for Arms.
 - Character-specific MythicSim weight import.
-- Validate Protection Threat/Survival estimates in the live client and choose an explicit priority for upgrade arrows.
+- Validate Protection Threat/Survival estimates and the selectable arrow priority in the live client.
 - Better proc/set-bonus handling.
 - Third-party bag addon support.
