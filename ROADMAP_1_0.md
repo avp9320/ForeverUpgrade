@@ -24,3 +24,6 @@ Pre-1.0. Features described in README may be implemented but are not accepted as
 - [x] Protection item tooltips now expose separate threat and survival weighted deltas (`Scoring.lua` `ProtectionComparison`, `UI.lua` tooltip hook; commits `66dc5df`, `d51951b`, `2b4cc3b`). Existing hybrid score and SavedVariables remain unchanged. Survival uses heuristic stats and threat uses existing weights; these are **not** separate simulation-derived EP scales.
 - [x] Implemented selectable Protection arrow policy (`/fu protpriority hybrid|threat|survival`, `Core.lua` and `Scoring.lua`); default hybrid preserves existing behavior. Component-specific score/baseline used for threshold and quest best-choice ranking. Code inspection only; live validation pending.
 - [ ] Execute Lua smoke tests and live-client tests for Protection, especially two-hand replacement with an empty main hand, tooltip refresh and unavailable item stats. No live test evidence yet.
+
+- [x] Prevented impossible Fury off-hand recommendations when a two-handed weapon occupies the main hand (`Scoring.lua` `CompareItem`, commit `4f7e7d3`). The valid main-hand comparison remains available. Static inspection only; no Lua harness or live-client test.
+- [ ] Test Fury dual-wield eligibility and equipped two-hander transitions in the live client, including item-info cache misses.
