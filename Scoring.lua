@@ -50,22 +50,57 @@ function FU:GetDetectedSpec()
         return override
     end
 
+    -- WoW: Forever is a Classic-style talent game. A modern specialization
+    -- metadata API usually returns a role/class name, NOT points invested in
+    -- Arms/Fury/Protection. Read the actual talent tab points instead.
     local bestIndex, bestPoints = 1, -1
-    if C_SpecializationInfo and C_SpecializationInfo.GetSpecializationInfo then
-        for index = 1, 3 do
-            local ok, _, _, _, _, _, _, pointsSpent = pcall(C_SpecializationInfo.GetSpecializationInfo, index)
-            if ok then
-                pointsSpent = tonumber(pointsSpent) or 0
-                if pointsSpent > bestPoints then
-                    bestPoints = pointsSpent
-                    bestIndex = index
+    local sawRealPoints = false
+
+    if type(GetNumTalentTabs) == "function" and
+        type(GetTalentTabInfo) == "function" then
+        local ok, count = pcall(GetNumTalentTabs)
+        if ok and type(count) == "number" and count >= 3 then
+            for index = 1, 3 do
+                local okTab, name, icon, points = pcall(GetTalentTabInfo, index)
+                if okTab and type(points) == "number" then
+                    sawRealPoints = true
+                    if points > bestPoints then
+                        bestIndex, bestPoints = index, points
+                    end
                 end
             end
         end
     end
 
-    if bestIndex == 2 then return "fury" end
-    if bestIndex == 3 then return "prot" end
+    -- On hybrid clients without Classic talent-tab APIs, only use the
+    -- specialization API when it *actually* exposes a numeric points value.
+    if not sawRealPoints and C_SpecializationInfo and
+        type(C_SpecializationInfo.GetSpecializationInfo) == "function" then
+        for index = 1, 3 do
+            local ok, _, _, _, _, _, _, pointsSpent =
+                pcall(C_SpecializationInfo.GetSpecializationInfo, index)
+            if ok and type(pointsSpent) == "number" then
+                sawRealPoints = true
+                if pointsSpent > bestPoints then
+                    bestIndex, bestPoints = index, pointsSpent
+                end
+            end
+        end
+    end
+
+    if sawRealPoints then
+        if bestIndex == 2 then return "fury" end
+        if bestIndex == 3 then return "prot" end
+        return "arms"
+    end
+
+    -- A real active specialization is a better fallback than a hard-coded
+    -- Arms assignment when this client does not expose points to addons.
+    if type(GetSpecialization) == "function" then
+        local ok, index = pcall(GetSpecialization)
+        if ok and index == 2 then return "fury" end
+        if ok and index == 3 then return "prot" end
+    end
     return "arms"
 end
 
