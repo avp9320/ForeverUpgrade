@@ -211,7 +211,27 @@ function FU:HookTooltips()
         end
 
         if ForeverUpgradeDB.details then
-            tooltip:AddDoubleLine("Weighted score", string.format("%.1f → %.1f", result.equipped or 0, result.candidate or 0), 0.55, 0.55, 0.55, 0.75, 0.75, 0.75)
+            tooltip:AddDoubleLine("Weighted item score", string.format("%.1f → %.1f", result.equipped or 0, result.candidate or 0), 0.55, 0.55, 0.55, 0.75, 0.75, 0.75)
+
+            local weapon = FU:GetWeaponComparisonInfo(link, result)
+            if weapon then
+                if weapon.equippedDps and weapon.candidateDps then
+                    tooltip:AddDoubleLine("Weapon DPS", string.format("%.1f → %.1f (%+.1f)", weapon.equippedDps,
+                        weapon.candidateDps, weapon.candidateDps - weapon.equippedDps),
+                        0.7, 0.7, 0.7, 0.95, 0.95, 0.95)
+                end
+                if weapon.equippedSpeed and weapon.candidateSpeed then
+                    local direction = weapon.candidateSpeed < weapon.equippedSpeed and "faster"
+                        or (weapon.candidateSpeed > weapon.equippedSpeed and "slower" or "same")
+                    tooltip:AddDoubleLine("Swing speed", string.format("%.2fs → %.2fs (%s)",
+                        weapon.equippedSpeed, weapon.candidateSpeed, direction),
+                        0.7, 0.7, 0.7, 0.95, 0.95, 0.95)
+                end
+                if tooltip.AddLine then
+                    tooltip:AddLine(weapon.model, 0.72, 0.72, 0.72, true)
+                    tooltip:AddLine("Upgrade % is item-score change, not damage gain.", 0.72, 0.72, 0.72, true)
+                end
+            end
         end
     end)
 end
