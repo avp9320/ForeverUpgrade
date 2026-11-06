@@ -2,7 +2,7 @@
 ## Title: Forever Upgrade
 ## Notes: Warrior-first gear upgrade scoring for World of Warcraft: Forever.
 ## Author: Andy + ChatGPT
-## Version: 0.2.7
+## Version: 0.2.8
 ## SavedVariables: ForeverUpgradeDB
 
 Profiles.lua
