@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.9 - 2026-11-05
+- Restore visible **numeric upgrade percentages** everywhere; never substitute "STRONG" for large score ratios.
+- Keep the tooltip label "item score" so the percentage is not confused with actual DPS gain.
+- This is a presentation-only change: item scores, thresholds, and weapon-speed model are unchanged.
+- Add regression tests to prevent a silent return of the STRONG label.
+
+
 ## 0.2.8 - 2026-11-05
 - Make weapon speed a small, spec/hand-aware tie-breaker rather than a blanket slow-weapon bonus.
 - Arms two-handers can favor slower swings modestly (capped +/-3% of weapon-DPS score); Fury offhands can favor faster swings modestly (capped +/-1.8%).
