@@ -66,13 +66,13 @@ function FU:GetLootRollVerdict(link)
 
     pct = pct or 0
     if result.delta > 0 and pct >= math.max(BIG_UPGRADE_PERCENT, threshold) then
-        return "BIG UPGRADE", "BIG_UPGRADE", string.format("%+.1f%%", pct)
+        return "BIG UPGRADE", "BIG_UPGRADE", self:UpgradeDisplayLabel(result, 1)
     elseif result.delta > 0 and pct >= threshold then
-        return "UPGRADE", "UPGRADE", string.format("%+.1f%%", pct)
+        return "UPGRADE", "UPGRADE", self:UpgradeDisplayLabel(result, 1)
     elseif result.delta == 0 or math.abs(pct) < threshold then
-        return "SIDEGRADE", "SIDEGRADE", string.format("%+.1f%%", pct)
+        return "SIDEGRADE", "SIDEGRADE", self:UpgradeDisplayLabel(result, 1)
     else
-        return "DOWNGRADE", "DOWNGRADE", string.format("%+.1f%%", pct)
+        return "DOWNGRADE", "DOWNGRADE", self:UpgradeDisplayLabel(result, 1)
     end
 end
 
