@@ -1,4 +1,4 @@
-# Forever Upgrade v0.2.8
+# Forever Upgrade v0.2.9
 
 Warrior-first item upgrade scoring for **World of Warcraft: Forever**.
 
@@ -6,7 +6,7 @@ Warrior-first item upgrade scoring for **World of Warcraft: Forever**.
 
 - Automatically detects the Warrior tree with the most points (Arms / Fury / Protection), or lets you force a profile. Reads Classic-style invested talent points first instead of mistaking Retail specialization metadata for points; falls back conservatively when the live client hides that data.
 - Uses separate **Leveling** and **Endgame** weight sets. Auto mode switches to Endgame at level 60.
-- Adds an **estimated weighted gear-score comparison** to item tooltips. The displayed percentage is a score difference, **not a predicted DPS/survival increase**. Very large score ratios show **STRONG** instead of misleading four-digit percentages.
+- Adds an **estimated weighted gear-score comparison** to item tooltips. The displayed percentage is a score difference, **not a predicted DPS/survival increase**. All upgrade percentages remain visible, including unusually large ones; a large ratio can reflect a very low equipped item score rather than a matching increase in real damage.
 - Adds green arrows and optional percentages to upgrades in Blizzard's bags and in **the ordinary corpse/chest loot window**, before you pick an item up.
 - Marks the **best gear upgrade among quest reward choices**.
 - Also labels **Need/Greed group-loot rolls**; these use a separate UI from ordinary corpse/chest loot.
