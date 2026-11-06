@@ -10,7 +10,9 @@ Warrior-first item upgrade scoring for **World of Warcraft: Forever**.
 - Adds green arrows and optional percentages to upgrades in Blizzard's bags and in **the ordinary corpse/chest loot window**, before you pick an item up.
 - Marks the **best gear upgrade among quest reward choices**.
 - Also labels **Need/Greed group-loot rolls**; these use a separate UI from ordinary corpse/chest loot.
-- Checks level requirements and filters out cloth/leather core armor recommendations for Warriors, while retaining mail and plate (plate from level 40).\n- Keeps missing worn-item stats **unscorable** instead of treating the occupied slot as empty.\n- Correctly treats rings/trinkets as two-slot items, Fury one-handers as possible main/off-hand upgrades once Dual Wield is available, and two-handers as replacing both hands.
+- Checks level requirements and filters out cloth/leather core armor recommendations for Warriors, while retaining mail and plate (plate from level 40).
+- Keeps missing worn-item stats **unscorable** instead of treating the occupied slot as empty.
+- Correctly treats rings/trinkets as two-slot items, Fury one-handers as possible main/off-hand upgrades once Dual Wield is available, and two-handers as replacing both hands.
 - Supports editable weights and Pawn-style import/export.
 - Reports the source of the active weights with `/fu source`.
 
