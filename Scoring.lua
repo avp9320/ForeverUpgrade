@@ -150,7 +150,38 @@ local function itemIDFromLink(link)
     return nil
 end
 
+-- These are primary armor slots, not cloaks, jewelry or weapon off-hands.
+-- Forever Warriors start with mail proficiency and learn plate at level 40.
+-- A technically wearable cloth caster robe is not an Arms gear recommendation.
+local PRIMARY_ARMOR = {
+    INVTYPE_HEAD = true, INVTYPE_SHOULDER = true,
+    INVTYPE_CHEST = true, INVTYPE_ROBE = true,
+    INVTYPE_WAIST = true, INVTYPE_LEGS = true,
+    INVTYPE_FEET = true, INVTYPE_WRIST = true, INVTYPE_HAND = true,
+}
+
 function FU:IsUsable(link)
+    local info = itemInfo(link)
+    if not info then return false end
+    local level = UnitLevel and tonumber(UnitLevel("player")) or 1
+
+    -- CanUseItem alone doesn't reliably apply the character-level requirement
+    -- on every Forever client/build.
+    if tonumber(info.requiredLevel) and tonumber(info.requiredLevel) > level then
+        return false
+    end
+
+    local _, classToken = UnitClass and UnitClass("player")
+    if classToken == "WARRIOR" and PRIMARY_ARMOR[info.equipLoc] and
+        tonumber(info.classID) == 4 then
+        local armorType = tonumber(info.subclassID)
+        -- Armor subclass IDs: 1 cloth, 2 leather, 3 mail, 4 plate.
+        -- Warrior-first recommendation policy favors mail/plate for core armor;
+        -- lower armor tiers can still be worn manually, just not auto-flagged.
+        if armorType == 1 or armorType == 2 then return false end
+        if armorType == 4 and level < 40 then return false end
+    end
+
     local itemID = itemIDFromLink(link)
     if itemID and C_PlayerInfo and C_PlayerInfo.CanUseItem then
         local ok, canUse = pcall(C_PlayerInfo.CanUseItem, itemID)
@@ -171,6 +202,8 @@ local function normalizedStats(link)
             stats[internal] = (stats[internal] or 0) + value
         end
     end
+    -- No recognized stats is missing scoring evidence, not a 0-point item.
+    if not next(stats) then return nil end
     return stats
 end
 
@@ -223,14 +256,25 @@ local function compareSingle(self, candidate, slot)
     if not candidateScore then return nil end
     local worn = equippedLink(slot)
     local wornScore = 0
-    if worn then wornScore = self:ScoreItem(worn, slot) or 0 end
+    if worn then
+        wornScore = self:ScoreItem(worn, slot)
+        -- Never pretend a worn but uncached item is an empty slot: doing so
+        -- produced extreme "upgrade" percentages and phantom new slots.
+        if wornScore == nil then return nil, nil, nil, slot, worn, "unscorable" end
+    end
     return candidateScore - wornScore, candidateScore, wornScore, slot, worn
 end
 
 function FU:CompareItem(link)
     if not self:IsUsable(link) then return nil, "unusable" end
     local _, _, info = self:ScoreItem(link, SLOT.MAINHAND)
-    if not info then return nil, "not_equippable" end
+    if not info then
+        local basic = itemInfo(link)
+        if basic and basic.equipLoc and basic.equipLoc ~= "" then
+            return nil, "unscorable"
+        end
+        return nil, "not_equippable"
+    end
 
     local equipLoc = info.equipLoc
     local slots = EQUIP_SLOTS[equipLoc]
@@ -260,8 +304,16 @@ function FU:CompareItem(link)
         local main = equippedLink(SLOT.MAINHAND)
         local off = equippedLink(SLOT.OFFHAND)
         local wornScore = 0
-        if main then wornScore = wornScore + (self:ScoreItem(main, SLOT.MAINHAND) or 0) end
-        if off then wornScore = wornScore + (self:ScoreItem(off, SLOT.OFFHAND) or 0) end
+        if main then
+            local mainScore = self:ScoreItem(main, SLOT.MAINHAND)
+            if mainScore == nil then return nil, "unscorable" end
+            wornScore = wornScore + mainScore
+        end
+        if off then
+            local offScore = self:ScoreItem(off, SLOT.OFFHAND)
+            if offScore == nil then return nil, "unscorable" end
+            wornScore = wornScore + offScore
+        end
         local delta = candidateScore - wornScore
         return {
             delta = delta, candidate = candidateScore, equipped = wornScore,
@@ -276,19 +328,21 @@ function FU:CompareItem(link)
     local mainLink = equippedLink(SLOT.MAINHAND)
     local mainInfo = mainLink and itemInfo(mainLink)
     local mainIsTwoHanded = mainInfo and mainInfo.equipLoc == "INVTYPE_2HWEAPON"
+    local unscorable = false
     for _, slot in ipairs(slots) do
         if not (slot == SLOT.OFFHAND and mainIsTwoHanded) then
-            local delta, candidateScore, wornScore, comparedSlot, worn = compareSingle(self, link, slot)
+            local delta, candidateScore, wornScore, comparedSlot, worn, reason = compareSingle(self, link, slot)
+            if reason == "unscorable" then unscorable = true end
             if delta and (not best or delta > best.delta) then
-            best = {
-                delta = delta, candidate = candidateScore, equipped = wornScore,
-                slot = comparedSlot, replaced = { worn }, info = info,
+                best = {
+                    delta = delta, candidate = candidateScore, equipped = wornScore,
+                    slot = comparedSlot, replaced = { worn }, info = info,
                 }
             end
         end
     end
 
-    if not best then return nil, "no_comparison" end
+    if not best then return nil, unscorable and "unscorable" or "no_comparison" end
     return best
 end
 
@@ -399,7 +453,12 @@ function FU:FormatComparison(result)
 
     pct = pct or 0
     if result.delta > 0 then
-        return string.format("|cff20ff20▲ +%.1f%% estimated|r", pct), label, mode
+        -- A near-zero worn item score creates absurd ratios (e.g. +2781%).
+        -- This is a weighted item-score comparison, not a DPS/survival gain.
+        if pct >= 100 then
+            return "|cff20ff20▲ Strong gear-score upgrade|r", label, mode
+        end
+        return string.format("|cff20ff20▲ +%.1f%% item score|r", pct), label, mode
     elseif result.delta < 0 then
         return string.format("|cffff5050▼ %.1f%% estimated|r", pct), label, mode
     else
