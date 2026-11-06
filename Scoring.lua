@@ -406,6 +406,18 @@ function FU:UpgradePercent(result)
     return (result.delta / result.equipped) * 100, false
 end
 
+-- Display helper shared across bags, corpses, loot rolls and dungeon scans.
+-- Numeric percentages are only ratios of weighted item scores, NOT predicted
+-- damage or survival increases. Tiny baselines can yield absurd ratios.
+function FU:UpgradeDisplayLabel(result, precision)
+    local pct, isNew = self:UpgradePercent(result)
+    if isNew then return "NEW" end
+    if not pct then return "?" end
+    if pct >= 100 then return "STRONG" end
+    local decimals = precision == 1 and 1 or 0
+    return string.format("%+." .. tostring(decimals) .. "f%%", pct)
+end
+
 -- Selection policy for Protection arrows. Hybrid remains the default for
 -- existing installations; threat/survival use their own baseline and threshold.
 function FU:RecommendationComparison(link, result)
