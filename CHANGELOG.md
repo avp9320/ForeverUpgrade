@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.7 - 2026-11-05
+- Do not flag higher-required-level items as current upgrades.
+- Warrior-first policy skips cloth/leather for primary armor slots; mail and plate remain eligible, with plate requiring level 40.
+- Keep missing equipped-item stat data unscorable instead of treating worn gear as zero-score/empty.
+- Show STRONG instead of absurd multi-hundred-percent ratios in bags, quests, loot windows and rolls; clarify the percent is item-score based, not actual DPS.
+
+
 ## 0.2.4 - 2026-11-04
 - Add upgrade arrows and optional estimated percentages to the **regular corpse/chest loot window**, not just bags and Need/Greed roll popups.
 - Hook Forever's modern `LootFrame.ScrollBox` initialized/recycled rows and query each item with `GetLootSlotLink`.
