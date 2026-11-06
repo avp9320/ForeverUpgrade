@@ -1,4 +1,4 @@
-# Forever Upgrade v0.2.6
+# Forever Upgrade v0.2.7
 
 Warrior-first item upgrade scoring for **World of Warcraft: Forever**.
 
@@ -6,11 +6,11 @@ Warrior-first item upgrade scoring for **World of Warcraft: Forever**.
 
 - Automatically detects the Warrior tree with the most points (Arms / Fury / Protection), or lets you force a profile. Reads Classic-style invested talent points first instead of mistaking Retail specialization metadata for points; falls back conservatively when the live client hides that data.
 - Uses separate **Leveling** and **Endgame** weight sets. Auto mode switches to Endgame at level 60.
-- Adds an **estimated upgrade/downgrade percentage** to item tooltips.
+- Adds an **estimated weighted gear-score comparison** to item tooltips. The displayed percentage is a score difference, **not a predicted DPS/survival increase**. Very large score ratios show **STRONG** instead of misleading four-digit percentages.
 - Adds green arrows and optional percentages to upgrades in Blizzard's bags and in **the ordinary corpse/chest loot window**, before you pick an item up.
 - Marks the **best gear upgrade among quest reward choices**.
 - Also labels **Need/Greed group-loot rolls**; these use a separate UI from ordinary corpse/chest loot.
-- Correctly treats rings/trinkets as two-slot items, Fury one-handers as possible main/off-hand upgrades once Dual Wield is available, and two-handers as replacing both hands.
+- Checks level requirements and filters out cloth/leather core armor recommendations for Warriors, while retaining mail and plate (plate from level 40).\n- Keeps missing worn-item stats **unscorable** instead of treating the occupied slot as empty.\n- Correctly treats rings/trinkets as two-slot items, Fury one-handers as possible main/off-hand upgrades once Dual Wield is available, and two-handers as replacing both hands.
 - Supports editable weights and Pawn-style import/export.
 - Reports the source of the active weights with `/fu source`.
 
