@@ -515,13 +515,14 @@ function FU:UpgradePercent(result)
 end
 
 -- Display helper shared across bags, corpses, loot rolls and dungeon scans.
--- Numeric percentages are only ratios of weighted item scores, NOT predicted
--- damage or survival increases. Tiny baselines can yield absurd ratios.
+-- Never replace a numeric value with "STRONG": players need the actual number.
+-- Percentages are ratios of weighted item scores, not predicted DPS gains.
+-- A high ratio can indicate a tiny equipped score and should be investigated,
+-- not silently hidden or capped.
 function FU:UpgradeDisplayLabel(result, precision)
     local pct, isNew = self:UpgradePercent(result)
     if isNew then return "NEW" end
     if not pct then return "?" end
-    if pct >= 100 then return "STRONG" end
     local decimals = precision == 1 and 1 or 0
     return string.format("%+." .. tostring(decimals) .. "f%%", pct)
 end
@@ -577,11 +578,8 @@ function FU:FormatComparison(result)
 
     pct = pct or 0
     if result.delta > 0 then
-        -- A near-zero worn item score creates absurd ratios (e.g. +2781%).
-        -- This is a weighted item-score comparison, not a DPS/survival gain.
-        if pct >= 100 then
-            return "|cff20ff20▲ Strong gear-score upgrade|r", label, mode
-        end
+        -- Keep the numerical ratio visible even if the item-score baseline
+        -- is small. This is NOT a predicted DPS/survival increase.
         return string.format("|cff20ff20▲ +%.1f%% item score|r", pct), label, mode
     elseif result.delta < 0 then
         return string.format("|cffff5050▼ %.1f%% estimated|r", pct), label, mode
