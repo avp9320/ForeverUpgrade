@@ -71,4 +71,12 @@ approximately(score("item:fast1h",16), score("item:slow1h",16))
 -- Missing tooltip speed means neutral, not a guessed speed.
 assert(FU:GetWeaponSpeed("item:unknown") == nil)
 approximately(score("item:unknown",16), 20*8 + 4)
+-- High score ratios must stay NUMERIC, not turn into a STRONG label.
+local huge = {equipped = 1, candidate = 23, delta = 22}
+assert(FU:UpgradeDisplayLabel(huge, 0) == "+2200%")
+assert(FU:UpgradeDisplayLabel(huge, 1) == "+2200.0%")
+local display = FU:FormatComparison(huge)
+assert(display and display:find("+2200.0%% item score"), "tooltip must retain real score percent")
+assert(not display:find("Strong"), "never replace actual ratio with subjective label")
+assert(FU:UpgradeDisplayLabel({equipped=0,candidate=23,delta=23}, 0) == "NEW")
 print("ForeverUpgrade speed-model tests passed")
