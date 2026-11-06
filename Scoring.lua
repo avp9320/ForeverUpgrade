@@ -176,14 +176,18 @@ function FU:IsUsable(link)
         local _, token = UnitClass("player")
         classToken = token
     end
-    if classToken == "WARRIOR" and PRIMARY_ARMOR[info.equipLoc] and
-        tonumber(info.classID) == 4 then
+    if classToken == "WARRIOR" and PRIMARY_ARMOR[info.equipLoc] then
         local armorType = tonumber(info.subclassID)
+        -- Forever clients sometimes return localized subtype text but omit
+        -- numeric subclass metadata; recognize English as a safe fallback.
+        local subtype = string.lower(tostring(info.itemSubType or ""))
         -- Armor subclass IDs: 1 cloth, 2 leather, 3 mail, 4 plate.
-        -- Warrior-first recommendation policy favors mail/plate for core armor;
-        -- lower armor tiers can still be worn manually, just not auto-flagged.
-        if armorType == 1 or armorType == 2 then return false end
-        if armorType == 4 and level < 40 then return false end
+        -- Warrior-first recommendation policy favors mail/plate for core armor.
+        if armorType == 1 or armorType == 2 or
+            subtype == "cloth" or subtype == "leather" then return false end
+        if (armorType == 4 or subtype == "plate") and level < 40 then
+            return false
+        end
     end
 
     local itemID = itemIDFromLink(link)
