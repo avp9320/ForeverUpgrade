@@ -171,7 +171,11 @@ function FU:IsUsable(link)
         return false
     end
 
-    local _, classToken = UnitClass and UnitClass("player")
+    local classToken
+    if type(UnitClass) == "function" then
+        local _, token = UnitClass("player")
+        classToken = token
+    end
     if classToken == "WARRIOR" and PRIMARY_ARMOR[info.equipLoc] and
         tonumber(info.classID) == 4 then
         local armorType = tonumber(info.subclassID)
