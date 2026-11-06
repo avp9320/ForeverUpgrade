@@ -223,6 +223,98 @@ local function weaponRole(equipLoc, slot)
     return "mainhand"
 end
 
+-- Weapon speed is NOT a second source of DPS or normalized Rage-per-second.
+-- It is a tiny, deliberately estimated tie-break for ability/proc cadence.
+-- The modern Forever client exposes a weapon's displayed speed in tooltip
+-- text, not in C_Item.GetItemStats. Missing speed = neutral adjustment.
+local function parseWeaponSpeed(text)
+    if type(text) ~= "string" then return nil end
+    local plain = text:gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "")
+    local lower = string.lower(plain)
+    local localeSpeed = (type(_G.SPEED) == "string") and string.lower(_G.SPEED) or "speed"
+    if not (string.find(lower, "speed", 1, true)
+        or (localeSpeed ~= "" and string.find(lower, localeSpeed, 1, true))) then
+        return nil
+    end
+    local number = plain:match("(%d+[.,]%d+)") or plain:match("(%d+)")
+    if not number then return nil end
+    number = number:gsub(",", ".")
+    local speed = tonumber(number)
+    if speed and speed >= 0.8 and speed <= 6.0 then return speed end
+    return nil
+end
+
+function FU:GetWeaponSpeed(link)
+    if not (link and C_TooltipInfo and type(C_TooltipInfo.GetHyperlink) == "function") then
+        return nil
+    end
+    local ok, tooltipData = pcall(C_TooltipInfo.GetHyperlink, link)
+    if not ok or type(tooltipData) ~= "table"
+        or type(tooltipData.lines) ~= "table" then return nil end
+    for _, line in ipairs(tooltipData.lines) do
+        -- Item tooltips commonly have "One-Hand" on the left and "Speed 2.40"
+        -- on the right. Check both without scraping the visible GameTooltip.
+        local speed = parseWeaponSpeed(line.rightText) or parseWeaponSpeed(line.leftText)
+        if speed then return speed end
+    end
+    return nil
+end
+
+local function clamp(value, minimum, maximum)
+    return math.max(minimum, math.min(maximum, value))
+end
+
+function FU:GetWeaponSpeedBias(equipLoc, slot, speed)
+    if not speed then return 0 end
+    local spec = self:GetDetectedSpec()
+
+    if spec == "arms" and equipLoc == "INVTYPE_2HWEAPON" then
+        -- Slower Arms two-handers can hit harder with weapon-damage abilities.
+        -- 2.5 percentage points per second, capped at +/-3% of weapon DPS EP.
+        return clamp((speed - 3.2) * 0.025, -0.03, 0.03)
+    end
+
+    if spec == "fury" and slot == SLOT.OFFHAND and
+        (equipLoc == "INVTYPE_WEAPON" or equipLoc == "INVTYPE_WEAPONOFFHAND") then
+        -- A faster Fury offhand offers more frequent small swings/proc chances.
+        -- Not a blanket Rage/sec advantage; capped at +/-1.8% of weapon DPS EP.
+        return clamp((1.9 - speed) * 0.018, -0.018, 0.018)
+    end
+
+    -- Do not automatically favor slow over fast in a one-hand MAIN hand. Both
+    -- have tradeoffs, and current profile weights do not sim those rotations.
+    return 0
+end
+
+function FU:GetWeaponComparisonInfo(link, result)
+    if not (result and result.info and link) then return nil end
+    local loc = result.info.equipLoc
+    if loc ~= "INVTYPE_WEAPON" and loc ~= "INVTYPE_WEAPONMAINHAND" and
+       loc ~= "INVTYPE_WEAPONOFFHAND" and loc ~= "INVTYPE_2HWEAPON" then
+        return nil
+    end
+    local slot = result.slot
+    local worn = result.replaced and result.replaced[1]
+    local candidateStats = normalizedStats(link)
+    local wornStats = worn and normalizedStats(worn) or nil
+    local speed = self:GetWeaponSpeed(link)
+    local wornSpeed = worn and self:GetWeaponSpeed(worn) or nil
+    local spec = self:GetDetectedSpec()
+    local model = "One-hand speed neutral (DPS and stats decide)"
+    if loc == "INVTYPE_2HWEAPON" and spec == "arms" then
+        model = "Arms 2H: modest slow-speed tie-break"
+    elseif spec == "fury" and slot == SLOT.OFFHAND then
+        model = "Fury offhand: modest fast-speed tie-break"
+    end
+    return {
+        candidateDps = candidateStats and candidateStats.DPS,
+        equippedDps = wornStats and wornStats.DPS,
+        candidateSpeed = speed,
+        equippedSpeed = wornSpeed,
+        model = model,
+    }
+end
+
 function FU:ScoreItem(link, slotOverride)
     local info = itemInfo(link)
     if not info or not info.equipLoc or info.equipLoc == "" then return nil end
@@ -247,6 +339,18 @@ function FU:ScoreItem(link, slotOverride)
             end
         end
         total = total + value * (weights[weightKey] or 0)
+    end
+
+    -- Apply the speed tie-break only to the weapon-DPS contribution, NOT to
+    -- Strength, Hit, weapon damage and Rage separately (double counting).
+    if stats.DPS and stats.DPS > 0 then
+        local speed = self:GetWeaponSpeed(link)
+        local bias = self:GetWeaponSpeedBias(info.equipLoc, slot, speed)
+        if bias ~= 0 then
+            local dpsWeight = (role == "offhand" and weights.DPS_OFF)
+                or (role == "ranged" and weights.DPS_RANGED) or weights.DPS
+            total = total + stats.DPS * (dpsWeight or 0) * bias
+        end
     end
 
     return total, stats, info
