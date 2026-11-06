@@ -59,8 +59,7 @@ function FU:MarkButton(button, link)
     arrow:Show()
 
     if ForeverUpgradeDB.showPercent and text then
-        local pct, isNew = self:UpgradePercent(result)
-        text:SetText(isNew and "NEW" or string.format("+%.0f%%", pct or 0))
+        text:SetText(self:UpgradeDisplayLabel(result, 0))
         text:Show()
     end
 end
@@ -168,8 +167,7 @@ function FU:UpdateQuestArrows()
         local arrow, text = ensureOverlay(bestButton)
         if arrow then arrow:Show() end
         if ForeverUpgradeDB.showPercent and text then
-            local pct, isNew = self:UpgradePercent(bestResult)
-            text:SetText(isNew and "NEW" or string.format("+%.0f%%", pct or 0))
+            text:SetText(self:UpgradeDisplayLabel(bestResult, 0))
             text:Show()
         end
     end
