@@ -1,4 +1,4 @@
-# Forever Upgrade v0.2.7
+# Forever Upgrade v0.2.8
 
 Warrior-first item upgrade scoring for **World of Warcraft: Forever**.
 
@@ -80,6 +80,18 @@ Forever currently reports Interface `16001`; both standard and `_Camelot.toc` ma
 ## Loot-window upgrade arrows
 
 The ordinary Forever loot panel uses Blizzard's `LootFrame.ScrollBox`. v0.2.4 adds a small green arrow on the item icon and, when enabled, a percentage at the bottom-right of an upgrade's row. Loot-window arrows use the same estimated score and `/fu arrows on|off` setting as bag arrows. This **does not** auto-loot or alter click actions. The separate group-loot (Need/Greed) indicator is unchanged.
+
+## Weapon speed (v0.2.8)
+
+**Weapon DPS and useful stats still determine almost all of a weapon's score.** Base swing speed is read from the item tooltip via the supported Forever API when available and contributes only a modest, conservative tie-breaker to the weapon-DPS portion of the score:
+
+- **Arms two-handers:** slow weapon preference is bounded to +/-3% of the weapon-DPS contribution, reflecting weapon-hit-based abilities like Mortal Strike and Slam.
+- **Fury offhand one-handers:** fast weapon preference is bounded to +/-1.8% of the offhand weapon-DPS contribution, reflecting more frequent swing/proc opportunities (NOT extra base Rage per second).
+- **One-hand main-hand weapons:** no unconditional faster/slower preference. Faster can be better on DPS and stats, and we do not penalize it for speed alone.
+- **Missing speed data:** neutral, not guessed.
+- **Rage normalization:** the score does *not* separately reward a slower weapon for extra Rage on each swing. Slower swings give larger chunks less frequently, so base Rage per second largely cancels.
+
+Use /fu details on to display the candidate's weapon DPS and speed compared with the equipped weapon, plus the applied speed rule. All displayed upgrade percentages refer to **weighted item score**, not predicted actual character DPS gain. The speed tie-break coefficients are deliberately cautious *estimates*, not simulation-derived EP numbers.
 
 ## Important limitations
 
