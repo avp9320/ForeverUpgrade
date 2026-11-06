@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.8 - 2026-11-05
+- Make weapon speed a small, spec/hand-aware tie-breaker rather than a blanket slow-weapon bonus.
+- Arms two-handers can favor slower swings modestly (capped +/-3% of weapon-DPS score); Fury offhands can favor faster swings modestly (capped +/-1.8%).
+- One-hand mainhand speed remains neutral: high-DPS fast one-handers are never penalized solely for speed.
+- Read speed from C_TooltipInfo.GetHyperlink when available. Unknown speed remains neutral; never count normalized Rage again as a DPS bonus.
+- /fu details on now explains actual weapon DPS/speed side by side and distinguishes the item score from predicted damage gain.
+- Add automated Lua syntax and mock regression tests to release CI.
+
+
 ## 0.2.7 - 2026-11-05
 - Do not flag higher-required-level items as current upgrades.
 - Warrior-first policy skips cloth/leather for primary armor slots; mail and plate remain eligible, with plate requiring level 40.
