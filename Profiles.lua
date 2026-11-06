@@ -3,7 +3,7 @@ local ADDON_NAME, FU = ...
 FU = FU or {}
 _G.ForeverUpgrade = FU
 
-FU.VERSION = "0.2.7"
+FU.VERSION = "0.2.8"
 
 -- Internal stat names are Pawn-like. Rating stats are weighted per ONE POINT OF
 -- RATING because C_Item.GetItemStats returns raw rating values.
