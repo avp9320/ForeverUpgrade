@@ -80,8 +80,7 @@ local function markRow(row)
         local arrow, text = ensureMarker(row)
         if arrow then arrow:Show() end
         if text and ForeverUpgradeDB.showPercent then
-            local pct, newSlot = FU:UpgradePercent(result)
-            text:SetText(newSlot and "NEW" or string.format("+%.0f%%", pct or 0))
+            text:SetText(FU:UpgradeDisplayLabel(result, 0))
             text:Show()
         end
         return
